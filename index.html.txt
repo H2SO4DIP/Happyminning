@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dafi Free Miner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --dark: #333;
+            --light: #f5f5f5;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .mining-control {
+            text-align: center;
+        }
+        
+        .status {
+            font-size: 1.1rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f0f8ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #e6f7ff;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .wallet-section {
+            margin: 20px 0;
+        }
+        
+        .wallet-address {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            word-break: break-all;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        
+        .transactions {
+            margin-top: 20px;
+        }
+        
+        .transaction {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .transaction:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-amount {
+            font-weight: 500;
+            color: var(--success);
+        }
+        
+        .news-card {
+            margin-bottom: 20px;
+        }
+        
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Animation for mining status */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .mining-active {
+            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Dafi Free Miner</div>
+            <div class="tagline">Mine Dafi coins with just your browser</div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <main>
+                <div class="card mining-control">
+                    <h2 class="card-title">Mining Control</h2>
+                    <div class="status" id="status-text">Ready to start mining</div>
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="stat-value" id="dafi-mined">0</div>
+                            <div class="stat-label">DAFI Mined</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="hashrate">0</div>
+                            <div class="stat-label">H/s</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="mining-time">00:00:00</div>
+                            <div class="stat-label">Mining Time</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="daily-estimate">0</div>
+                            <div class="stat-label">DAFI/day</div>
+                        </div>
+                    </div>
+                    <button id="mining-button">Start Mining</button>
+                </div>
+                
+                <div class="card wallet-section">
+                    <h2 class="card-title">Your Dafi Wallet</h2>
+                    <p>Your mined Dafi coins will be sent to this address:</p>
+                    <div class="wallet-address" id="wallet-address">Generating wallet address...</div>
+                    <button id="withdraw-button" disabled>Withdraw (Minimum 10 DAFI)</button>
+                </div>
+                
+                <div class="card transactions">
+                    <h2 class="card-title">Transaction History</h2>
+                    <div id="transactions">
+                        <div class="transaction">
+                            <span>No transactions yet</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <aside>
+                <div class="card news-card">
+                    <h2 class="card-title">Pool News</h2>
+                    <div class="news-item">
+                        <div class="news-date">June 15, 2023</div>
+                        <h3>New Mining Pool Launched</h3>
+                        <p>Welcome to our new Dafi mining pool with zero fees for the first month!</p>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-date">June 10, 2023</div>
+                        <h3>Dafi Network Upgrade</h3>
+                        <p>The latest network upgrade improves mining efficiency by 15%.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Top Miners</h2>
+                    <div class="news-item">
+                        1. 0x7f3...4d2 - 245 DAFI
+                    </div>
+                    <div class="news-item">
+                        2. 0x1a5...9e3 - 198 DAFI
+                    </div>
+                    <div class="news-item">
+                        3. 0x3b7...2f1 - 156 DAFI
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Pool Statistics</h2>
+                    <div class="stat">
+                        <div class="stat-value">24.5K</div>
+                        <div class="stat-label">Total Miners</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1.2M</div>
+                        <div class="stat-label">DAFI Mined</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">42</div>
+                        <div class="stat-label">Blocks Found</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 Dafi Free Miner. All rights reserved.</p>
+            <p>This is a simulated mining interface for demonstration purposes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // App state
+        let isMining = false;
+        let miningInterval;
+        let startTime;
+        let dafiBalance = 0;
+        let hashrate = 0;
+        
+        // DOM elements
+        const statusText = document.getElementById('status-text');
+        const hashrateDisplay = document.getElementById('hashrate');
+        const miningButton = document.getElementById('mining-button');
+        const dafiMinedDisplay = document.getElementById('dafi-mined');
+        const miningTimeDisplay = document.getElementById('mining-time');
+        const dailyEstimateDisplay = document.getElementById('daily-estimate');
+        const walletAddressDisplay = document.getElementById('wallet-address');
+        const withdrawButton = document.getElementById('withdraw-button');
+        const transactionsContainer = document.getElementById('transactions');
+        
+        // Generate a random wallet address
+        function generateWalletAddress() {
+            const chars = '0123456789ABCDEF';
+            let address = '0x';
+            for (let i = 0; i < 40; i++) {
+                address += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return address;
+        }
+        
+        // Format time as HH:MM:SS
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        // Update mining stats
+        function updateStats() {
+            const now = new Date();
+            const elapsedSeconds = Math.floor((now - startTime) / 1000);
+            
+            // Simulate finding blocks occasionally
+            if (Math.random() < 0.01) {
+                const reward = 0.1 + Math.random() * 0.5; // Random reward between 0.1 and 0.6 DAFI
+                dafiBalance += reward;
+                addTransaction(`Mined ${reward.toFixed(4)} DAFI`, now);
+            }
+            
+            // Random slight hashrate fluctuation
+            hashrate = 500 + Math.floor(Math.random() * 100);
+            
+            // Update displays
+            dafiMinedDisplay.textContent = dafiBalance.toFixed(4);
+            miningTimeDisplay.textContent = formatTime(elapsedSeconds);
+            hashrateDisplay.textContent = hashrate;
+            dailyEstimateDisplay.textContent = (dafiBalance * (86400 / elapsedSeconds)).toFixed(2);
+            
+            // Enable withdraw button if balance is sufficient
+            withdrawButton.disabled = dafiBalance < 10;
+        }
+        
+        // Add a transaction to history
+        function addTransaction(text, date) {
+            const transactionDiv = document.createElement('div');
+            transactionDiv.className = 'transaction';
+            
+            const amount = text.match(/[\d.]+/)[0];
+            
+            transactionDiv.innerHTML = `
+                <span>${text}</span>
+                <span class="transaction-amount">+${amount} DAFI</span>
+            `;
+            
+            if (transactionsContainer.firstChild.textContent === 'No transactions yet') {
+                transactionsContainer.innerHTML = '';
+            }
+            
+            transactionsContainer.insertBefore(transactionDiv, transactionsContainer.firstChild);
+        }
+        
+        // Start/stop mining
+        miningButton.addEventListener('click', function() {
+            if (isMining) {
+                // Stop mining
+                clearInterval(miningInterval);
+                miningButton.textContent = 'Start Mining';
+                statusText.textContent = 'Mining Paused';
+                statusText.className = 'status';
+                isMining = false;
+            } else {
+                // Start mining
+                startTime = new Date();
+                miningInterval = setInterval(updateStats, 1000);
+                miningButton.textContent = 'Stop Mining';
+                statusText.textContent = 'Mining DAFI...';
+                statusText.className = 'status mining-active';
+                isMining = true;
+                
+                // Initial stats update
+                updateStats();
+            }
+        });
+        
+        // Withdraw function
+        withdrawButton.addEventListener('click', function() {
+            if (dafiBalance >= 10) {
+                addTransaction(`Withdrawn ${dafiBalance.toFixed(4)} DAFI`, new Date());
+                alert(`Successfully withdrawn ${dafiBalance.toFixed(4)} DAFI to ${walletAddressDisplay.textContent}`);
+                dafiBalance = 0;
+                updateStats();
+            }
+        });
+        
+        // Initialize
+        walletAddressDisplay.textContent = generateWalletAddress();
+    </script>
+</body>
+</html>
